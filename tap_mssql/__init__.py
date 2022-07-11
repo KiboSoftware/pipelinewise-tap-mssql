@@ -9,7 +9,8 @@ import json
 import logging
 import copy
 import uuid
-
+#adding import to get around iconlib import error on mac
+import _scproxy
 import pymssql
 
 import singer
@@ -60,6 +61,7 @@ STRING_TYPES = set(
         "uniqueidentifier",
         "nvarchar",
         "nchar",
+        "ntext",
     ]
 )
 
@@ -75,7 +77,8 @@ FLOAT_TYPES = set(["float", "double", "real"])
 
 DECIMAL_TYPES = set(["decimal", "number", "money"])
 
-DATETIME_TYPES = set(["datetime", "timestamp", "date", "time", "smalldatetime"])
+DATETIME_TYPES = set(["datetime", "timestamp", "date", "time", "smalldatetime",
+"datetime2"])
 
 VARIANT_TYPES = set(["json"])
 
