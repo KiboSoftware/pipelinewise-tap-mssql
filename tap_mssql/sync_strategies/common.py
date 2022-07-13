@@ -10,6 +10,9 @@ import uuid
 import singer.metrics as metrics
 from singer import metadata
 from singer import utils
+import re
+
+date_pattern = re.compile('^\d{4}-\d{2}-\d{2}.{1}\d{2}:\d{2}:\d{2}.\d{5}')
 
 LOGGER = singer.get_logger()
 
@@ -94,6 +97,7 @@ def row_to_singer_record(catalog_entry, version, row, columns, time_extracted):
     row_to_persist = ()
     for idx, elem in enumerate(row):
         property_type = catalog_entry.schema.properties[columns[idx]].type
+        format = catalog_entry.schema.properties[columns[idx]].format
         if isinstance(elem, datetime.datetime):
             row_to_persist += (elem.isoformat() + "+00:00",)
 
@@ -120,6 +124,12 @@ def row_to_singer_record(catalog_entry, version, row, columns, time_extracted):
             row_to_persist += (boolean_representation,)
         elif isinstance(elem, uuid.UUID):
             row_to_persist += (str(elem),)
+        elif elem and isinstance(elem , str) and format =='date-time':
+            m = date_pattern.match(elem)
+            if (m):
+                row_to_persist += (m.group(),)
+            else:
+                row_to_persist += (elem,)
         else:
             row_to_persist += (elem,)
     rec = dict(zip(columns, row_to_persist))
